@@ -11,6 +11,7 @@ This custom image contains:
 - [ModSecurity-nginx](https://github.com/SpiderLabs/ModSecurity-nginx) (only supported in x86_64)
 - [brotli](https://github.com/google/brotli)
 - [geoip2](https://github.com/leev/ngx_http_geoip2_module)
+- [curiefense](https://github.com/curiefense/curiefense)
 
 **How to use this image:**
 This image provides a default configuration file with no backend servers.

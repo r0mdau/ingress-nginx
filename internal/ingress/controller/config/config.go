@@ -739,6 +739,9 @@ type Configuration struct {
 	// GlobalRateLimitStatucCode determines the HTTP status code to return
 	// when limit is exceeding during global rate limiting.
 	GlobalRateLimitStatucCode int `json:"global-rate-limit-status-code"`
+
+	// EnableCuriefense enables the curifense.io WAF, Anti-DDOS, bot mgmt security features
+	EnableCuriefense bool `json:"enable-curiefense"`
 }
 
 // NewDefault returns the default nginx configuration
@@ -896,6 +899,7 @@ func NewDefault() Configuration {
 		GlobalRateLimitMemcachedMaxIdleTimeout: 10000,
 		GlobalRateLimitMemcachedPoolSize:       50,
 		GlobalRateLimitStatucCode:              429,
+		EnableCuriefense:                       false,
 	}
 
 	if klog.V(5).Enabled() {

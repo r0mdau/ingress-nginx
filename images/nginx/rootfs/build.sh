@@ -41,6 +41,7 @@ export LUA_CJSON_VERSION=2.1.0.8
 export NGINX_INFLUXDB_VERSION=5b09391cb7b9a889687c0aa67964c06a2d933e8b
 export GEOIP2_VERSION=3.3
 export NGINX_AJP_VERSION=bf6cd93f2098b59260de8d494f0f4b1f11a84627
+export CURIEFENSE_VERSION=1.4.0
 
 export LUAJIT_VERSION=2.1-20201027
 
@@ -225,6 +226,9 @@ get_src d0eacda122ab36585936256cb222ea9147bc5ad1fc3f24fd3748475653dd27ad \
 
 get_src 0fb790e394510e73fdba1492e576aaec0b8ee9ef08e3e821ce253a07719cf7ea \
         "https://github.com/ElvinEfendi/lua-resty-global-throttle/archive/v$LUA_RESTY_GLOBAL_THROTTLE_VERSION.tar.gz"
+
+get_src 34d6faf34c01dec09893f987d045ab490bc088f052f485a3b28e215ee9c0fa48 \
+        "https://github.com/curiefense/curiefense/archive/refs/tags/v$CURIEFENSE_VERSION.tar.gz"
 
 # improve compilation times
 CORES=$(($(grep -c ^processor /proc/cpuinfo) - 1))
@@ -614,6 +618,15 @@ INST_LUADIR=/usr/local/lib/lua make install
 
 cd "$BUILD_PATH/lua-resty-global-throttle-$LUA_RESTY_GLOBAL_THROTTLE_VERSION"
 make install
+
+# copy curiefense binaries
+CURIEFENSE_SRC=$BUILD_PATH/curiefense-$CURIEFENSE_VERSION/curiefense
+cp -r $CURIEFENSE_SRC/curieproxy/lua /lua
+cp $CURIEFENSE_SRC/curieproxy/lua/shared-objects/grasshopper.so $LUA_INCLUDE_DIR/
+cp $CURIEFENSE_SRC/curieproxy/lua/shared-objects/libhs5/luahs.so $LUA_INCLUDE_DIR/curiefense.so
+# TODO ask @reblaze for a path property /config... hardcoded
+mkdir -p /config/current/
+cp -r $CURIEFENSE_SRC/images/confserver/bootstrap/confdb-initial-data/master/config/ /config/current/
 
 # mimalloc
 cd "$BUILD_PATH"

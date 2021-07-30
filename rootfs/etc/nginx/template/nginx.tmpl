@@ -61,7 +61,11 @@ events {
 }
 
 http {
+    {{ if $cfg.EnableCuriefense }}
+    lua_package_path "/etc/nginx/lua/?.lua;/lua/?.lua;;";
+    {{ else }}
     lua_package_path "/etc/nginx/lua/?.lua;;";
+    {{ end }}
 
     {{ buildLuaSharedDictionaries $cfg $servers }}
 
@@ -353,6 +357,12 @@ http {
     # $service_port
     log_format upstreaminfo {{ if $cfg.LogFormatEscapeJSON }}escape=json {{ end }}'{{ $cfg.LogFormatUpstream }}';
 
+    # curiefense log format
+    {{ if $cfg.EnableCuriefense }}
+    log_format curiefenselog escape=none '$request_map';
+    map $status $request_map { default '-'; }
+    {{ end }}
+
     {{/* map urls that should not appear in access.log */}}
     {{/* http://nginx.org/en/docs/http/ngx_http_log_module.html#access_log */}}
     map $request_uri $loggable {
@@ -367,7 +377,11 @@ http {
     {{ if $cfg.EnableSyslog }}
     access_log syslog:server={{ $cfg.SyslogHost }}:{{ $cfg.SyslogPort }} upstreaminfo if=$loggable;
     {{ else }}
+    {{ if $cfg.EnableCuriefense }}
+    access_log {{ or $cfg.HttpAccessLogPath $cfg.AccessLogPath }} curiefenselog {{ $cfg.AccessLogParams }} if=$loggable;
+    {{ else }}
     access_log {{ or $cfg.HttpAccessLogPath $cfg.AccessLogPath }} upstreaminfo {{ $cfg.AccessLogParams }} if=$loggable;
+    {{ end }}
     {{ end }}
     {{ end }}
 
@@ -1114,6 +1128,12 @@ stream {
             # other authentication method such as basic auth or external auth useless - all requests will be allowed.
             #access_by_lua_block {
             #}
+            {{ if $all.Cfg.EnableCuriefense }}
+            access_by_lua_block {
+                local session = require "lua.session_nginx"
+                session.inspect(ngx)
+            }
+            {{ end }}
 
             header_filter_by_lua_block {
                 lua_ingress.header()
@@ -1125,6 +1145,10 @@ stream {
             }
 
             log_by_lua_block {
+                {{ if $all.Cfg.EnableCuriefense }}
+                local session = require "lua.session_nginx"
+                session.log(ngx)
+                {{ end }}
                 balancer.log()
                 {{ if $all.EnableMetrics }}
                 monitor.call()

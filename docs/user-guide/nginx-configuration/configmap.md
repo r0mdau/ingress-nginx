@@ -200,6 +200,7 @@ The following table shows a configuration option's name, type, and the default v
 |[global-rate-limit-memcached-max-idle-timeout](#global-rate-limit)|int|10000|
 |[global-rate-limit-memcached-pool-size](#global-rate-limit)|int|50|
 |[global-rate-limit-status-code](#global-rate-limit)|int|429|
+|[enable-curiefense](#enable-curifense)|bool|"false"|
 
 ## add-headers
 
@@ -1185,3 +1186,10 @@ Configure `memcached` client for [Global Rate Limiting](https://github.com/kuber
 
 These settings get used by [lua-resty-global-throttle](https://github.com/ElvinEfendi/lua-resty-global-throttle)
 that ingress-nginx includes. Refer to the link to learn more about `lua-resty-global-throttle`.
+
+## enable-curiefense
+
+Enables or disables [Curiefense](https://www.curiefense.io/) WAF, anti-DDOS and bot management of HTTP requests using the ["curieproxy" Nginx module](https://github.com/curiefense/curiefense).
+
+> __Note:__ This option only put curiefense configuration in nginx. See their documentation to add other part for the system to work.
+Observability metrics and logs need to be stored in a particular format and you should set up their Config Server in order to manage Curiefense with a WebUI.
